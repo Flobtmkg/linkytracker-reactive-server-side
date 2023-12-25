@@ -27,7 +27,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 // Authorized origin front App
-@CrossOrigin(origins = "http://localhost:19006")
+@CrossOrigin(origins = "${allow-origins}")
 @RestController
 public class ElectricityDataPointsController {
 	
