@@ -1,8 +1,11 @@
 package flo.linky.open.dataserver.dto.inputs;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class SensorLedBlinkedDTO {
+	
+	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
 	private String deviceId;
 	
@@ -24,6 +27,10 @@ public class SensorLedBlinkedDTO {
 
 	public void setPointDate(LocalDateTime pointDate) {
 		this.pointDate = pointDate;
+	}
+	
+	public void setPointDate(String pointDate) {
+		this.pointDate = LocalDateTime.from(FORMAT.parse(pointDate));
 	}
 
 	public int getLedMilis() {
