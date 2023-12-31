@@ -14,8 +14,7 @@ ENV ALLOW_ORIGINS=http://localhost:80
 
 COPY ./target/linkydataserver-*.jar /linkydataserver/linkydataserver.jar
 
-RUN ["apt-get", "-y", "update"]
-RUN ["apt-get", "-y", "install", "curl"]
-RUN ["apt-get", "-y", "install", "iputils-ping"]
+RUN ["apk", "add", "--update", "curl"]
+RUN ["apk", "add", "--update", "iputils"]
 
 ENTRYPOINT [ "java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/linkydataserver/linkydataserver.jar" ]
