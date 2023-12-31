@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,8 +13,6 @@ import flo.linky.open.dataserver.converters.ConsumptionConverter;
 import flo.linky.open.dataserver.dto.inputs.SensorLedBlinkedDTO;
 import flo.linky.open.dataserver.services.ElectricityConsumptionService;
 
-// Authorized origin front App
-@CrossOrigin(origins = "${allow-origins}")
 @RestController
 @Profile("test")
 public class ElectricityDataPointsControllerTEST {
