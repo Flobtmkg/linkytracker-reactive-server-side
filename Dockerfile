@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM openjdk:17-ea-33-oracle
 
 VOLUME /database
 
@@ -13,8 +13,5 @@ ENV SERVER_PORT=8080
 ENV ALLOW_ORIGINS=http://localhost:80
 
 COPY ./target/linkydataserver-*.jar /linkydataserver/linkydataserver.jar
-
-RUN ["apk", "add", "--update", "curl"]
-RUN ["apk", "add", "--update", "iputils"]
 
 ENTRYPOINT [ "java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/linkydataserver/linkydataserver.jar" ]
