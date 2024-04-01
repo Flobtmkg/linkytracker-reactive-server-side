@@ -15,7 +15,7 @@ import reactor.core.publisher.Flux;
 @Service
 public class ConsumptionConverter {
 	
-	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH'h'mm ss's' SSS'ms'");
+	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("HH'h' mm'min' ss's' SSS'ms' '('yyyy-MM-dd')'");
 	private static final float KWH_MINUTE_BASE = 60;
 	
 	
