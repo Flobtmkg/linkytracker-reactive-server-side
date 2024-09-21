@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import flo.linky.open.dataserver.config.CurrentConfiguration;
 import flo.linky.open.dataserver.converters.ConsumptionConverter;
 import flo.linky.open.dataserver.dto.inputs.SensorLedBlinkedDTO;
 import flo.linky.open.dataserver.services.ElectricityConsumptionService;
@@ -25,6 +26,9 @@ public class ElectricityDataPointsControllerTEST {
 	@Autowired
 	private ConsumptionConverter consumptionConverterService;
 	
+	@Autowired
+	private CurrentConfiguration currentConfiguration;
+	
 	
 	// Endpoint to test real time data insertion on a custom date
 	// Precision up to to seconds
@@ -36,7 +40,7 @@ public class ElectricityDataPointsControllerTEST {
 	}*/
 	@PostMapping("/api/v1/datapoint/test")
 	public ResponseEntity<Void> postElectricityConsumptionDataPointsTest(@RequestBody SensorLedBlinkedDTO consumptionDTO) {
-		
+		logger.info(currentConfiguration.getServerConfig().toString());
 		logger.info("Input detected from deviceId " + consumptionDTO.getDeviceId() + " value : " + consumptionDTO.getLedMilis());
 		ElectricityConsumptionService.save(consumptionConverterService.convertSensorLedBlinkedDTOToElectricityConsumptionDataPointEntity(consumptionDTO)).subscribe();
 		

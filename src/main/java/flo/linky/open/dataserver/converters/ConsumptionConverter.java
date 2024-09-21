@@ -16,7 +16,7 @@ import reactor.core.publisher.Flux;
 public class ConsumptionConverter {
 	
 	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("HH'h' mm'min' ss's' SSS'ms' '('yyyy-MM-dd')'");
-	private static final float KWH_MINUTE_BASE = 60;
+	private static final float CONVERT_WH_ms_TO_INSTANT_AVERAGE_WATT = 3600000;
 	
 	
 	public ElectricityConsumptionDataPointEntity convertSensorLedBlinkedDTOToElectricityConsumptionDataPointEntity(SensorLedBlinkedDTO sensorLedBlinkedDTO) {
@@ -37,7 +37,7 @@ public class ConsumptionConverter {
 			new DataGraphDTO(
 				FORMAT.format(data.getPointDate()),
 				new BigDecimal(
-					data.getLedMilis() !=0 ? KWH_MINUTE_BASE/((float)data.getLedMilis()) : 0,
+					data.getLedMilis() !=0 ? (1/((float)data.getLedMilis())*CONVERT_WH_ms_TO_INSTANT_AVERAGE_WATT) : 0,
 					new MathContext(4, RoundingMode.HALF_EVEN)
 				)
 			)

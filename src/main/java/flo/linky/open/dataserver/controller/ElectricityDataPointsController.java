@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import flo.linky.open.dataserver.config.CurrentConfiguration;
 import flo.linky.open.dataserver.converters.ConsumptionConverter;
 import flo.linky.open.dataserver.dto.inputs.SensorLedBlinkedDTO;
 import flo.linky.open.dataserver.dto.output.DataGraphDTO;
@@ -32,7 +33,7 @@ import reactor.core.publisher.Mono;
 public class ElectricityDataPointsController {
 	
 	private static Logger logger = LoggerFactory.getLogger(ElectricityDataPointsController.class);
-
+	
 	@Autowired
 	private ElectricityConsumptionService ElectricityConsumptionService;
 	
@@ -41,6 +42,13 @@ public class ElectricityDataPointsController {
 	
 	@Autowired
 	private ConsumptionConverter consumptionConverterService;
+	
+	@Autowired
+	private CurrentConfiguration currentConfiguration;
+	
+	
+	
+	private LocalDateTime cachedLastPostReceived = LocalDateTime.now();
 	
 	
 	@GetMapping("/api/v1/device/recent/activity")
@@ -62,23 +70,33 @@ public class ElectricityDataPointsController {
 	@PostMapping("/api/v1/datapoints")
 	public ResponseEntity<Void> postElectricityConsumptionDataPoints(@RequestBody SensorLedBlinkedDTO consumptionDTO) {
 		
-		// Add time from server
-		consumptionDTO.setPointDate(LocalDateTime.now());
+		LocalDateTime inputTime = LocalDateTime.now();
 		
-		logger.info("Input detected from deviceId " + consumptionDTO.getDeviceId() + " value : " + consumptionDTO.getLedMilis());
-		ElectricityConsumptionService.save(consumptionConverterService.convertSensorLedBlinkedDTOToElectricityConsumptionDataPointEntity(consumptionDTO)).subscribe();
-		
+		// If we are above the threshold tolerance we push the data otherwise we ignore it
+		if(Duration.between(cachedLastPostReceived, inputTime).compareTo(Duration.ofMillis(currentConfiguration.getServerConfig().getDataFilter())) > 0) {
+			cachedLastPostReceived = inputTime;
+			// Add time from server
+			consumptionDTO.setPointDate(inputTime);
+			
+			logger.info("Input detected from deviceId " + consumptionDTO.getDeviceId() + " value : " + consumptionDTO.getLedMilis());
+			ElectricityConsumptionService.save(consumptionConverterService.convertSensorLedBlinkedDTOToElectricityConsumptionDataPointEntity(consumptionDTO)).subscribe();
+		}
+		// we return ok anyway
 		return ResponseEntity.ok().build();
 	}
 	
 	
-	// Communication DataGraphDTO via SSE
+	// Communication DataGraphDTO via SSE for last datas
 	@GetMapping(value="/api/v1/datapoints/date", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<DataGraphDTO> getLastElectricityConsumptionDataPoints(@RequestParam("deviceId") String deviceId, @RequestParam("date") LocalDate date, ServerHttpResponse response) {
-		logger.info("Contact with device : " + deviceId + " and date : " + date.toString());
+	public Flux<DataGraphDTO> getLastElectricityConsumptionDataPoints(
+			@RequestParam("deviceId") String deviceId,
+			@RequestParam("date") LocalDate date,
+			ServerHttpResponse response) {
+		
+		logger.info("Lookup for device : " + deviceId + " date : " + date.toString());
 		return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findBydeviceIdAndDate(deviceId, date))
 				.repeat()
-				.delayElements(Duration.ofMillis(20))
+				.delayElements(Duration.ofMillis(30))
 				.delaySubscription(Duration.ofMillis(1000));
 	}
 
