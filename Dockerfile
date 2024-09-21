@@ -1,4 +1,4 @@
-FROM openjdk:17-ea-33-oracle
+FROM eclipse-temurin:17
 
 VOLUME /database
 
