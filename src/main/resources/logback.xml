@@ -13,9 +13,7 @@
         <appender-ref ref="Console" />
     </root>
     
-
-    <logger name="reactor.Flux" level="trace" >
-        <appender-ref ref="Console" />
-    </logger>
+    <!-- <logger name="org.h2" level="debug" />
+    <logger name="org.springframework.data" level="debug" /> -->
 
 </configuration>

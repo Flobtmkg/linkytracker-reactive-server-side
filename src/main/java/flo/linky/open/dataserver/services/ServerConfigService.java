@@ -43,7 +43,8 @@ public class ServerConfigService {
 					.map(config -> 
 						new ServerConfigDTO(
 								config.getDataFilterMilis(),
-								config.getDefaultTimeWindow()
+								config.getDefaultTimeWindow(),
+								config.getDefaultTimeZoneOffset()
 						)
 					);
 	}
@@ -64,6 +65,17 @@ public class ServerConfigService {
 			.findFirstByOrderByIdDesc()
 			.map(config -> {
 				config.setDefaultTimeWindow(defaultTimeWindow);
+				return config;
+				}
+			)
+			.map(config -> serverConfigRepository.save(config).subscribe()).subscribe();
+	}
+	
+	public void saveDefaultTimeZoneOffset(int defaultTimeZoneOffset) {
+		serverConfigRepository
+			.findFirstByOrderByIdDesc()
+			.map(config -> {
+				config.setDefaultTimeZoneOffset(defaultTimeZoneOffset);
 				return config;
 				}
 			)

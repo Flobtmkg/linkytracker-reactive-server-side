@@ -11,6 +11,7 @@ public class ServerConfigEntity {
 	
 	private int dataFilterMilis;
 	private int defaultTimeWindow;
+	private int defaultTimeZoneOffset;
 
 	public Integer getId() {
 		return id;
@@ -34,6 +35,14 @@ public class ServerConfigEntity {
 
 	public void setDefaultTimeWindow(int defaultTimeWindow) {
 		this.defaultTimeWindow = defaultTimeWindow;
+	}
+
+	public int getDefaultTimeZoneOffset() {
+		return defaultTimeZoneOffset;
+	}
+
+	public void setDefaultTimeZoneOffset(int defaultTimeZoneOffset) {
+		this.defaultTimeZoneOffset = defaultTimeZoneOffset;
 	}	
 	
 }

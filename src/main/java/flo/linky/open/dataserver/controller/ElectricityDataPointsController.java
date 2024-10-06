@@ -61,9 +61,12 @@ public class ElectricityDataPointsController {
 	}
 	
 	
-	@GetMapping("/api/v1/devices")
+	@GetMapping(value="/api/v1/devices", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Flux<DeviceDTO> getDevices() {
-		return deviceService.findAllDevices();
+		return deviceService.findAllDevices()
+				.repeat()
+				.delayElements(Duration.ofMillis(500))
+				.delaySubscription(Duration.ofMillis(2000));
 	}
 	
 	

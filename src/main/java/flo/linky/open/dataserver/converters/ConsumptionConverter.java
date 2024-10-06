@@ -3,7 +3,7 @@ package flo.linky.open.dataserver.converters;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
 
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,6 @@ import reactor.core.publisher.Flux;
 @Service
 public class ConsumptionConverter {
 	
-	private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("HH'h' mm'min' ss's' SSS'ms' '('yyyy-MM-dd')'");
 	private static final float CONVERT_WH_ms_TO_INSTANT_AVERAGE_WATT = 3600000;
 	
 	
@@ -32,10 +31,9 @@ public class ConsumptionConverter {
 	
 	
 	public Flux<DataGraphDTO> convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(Flux<ElectricityConsumptionDataPointEntity> datas) {
-		
 		return datas.map(data -> 
 			new DataGraphDTO(
-				FORMAT.format(data.getPointDate()),
+					data.getPointDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
 				new BigDecimal(
 					data.getLedMilis() !=0 ? (1/((float)data.getLedMilis())*CONVERT_WH_ms_TO_INSTANT_AVERAGE_WATT) : 0,
 					new MathContext(4, RoundingMode.HALF_EVEN)

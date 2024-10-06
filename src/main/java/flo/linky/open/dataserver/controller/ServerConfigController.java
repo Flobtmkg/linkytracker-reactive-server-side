@@ -44,4 +44,13 @@ public class ServerConfigController {
 		return ResponseEntity.noContent().build();
 	}
 	
+	@PostMapping("/api/v1/config/timeZoneOffset/{timeZoneOffset}")
+	public ResponseEntity<Void> postDefaultTimeZoneOffsetConfig(@PathVariable Integer timeZoneOffset) {
+		if(null != timeZoneOffset && timeZoneOffset > -12 && timeZoneOffset < 12) {
+			serverConfigService.saveDefaultTimeZoneOffset(timeZoneOffset);
+			return ResponseEntity.ok().build();
+		}
+		return ResponseEntity.noContent().build();
+	}
+	
 }

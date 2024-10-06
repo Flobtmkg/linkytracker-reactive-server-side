@@ -4,11 +4,13 @@ public class ServerConfigDTO {
 	
 	private int dataFilter;
 	private int defaultTimeWindow;
+	private int defaultTimeZoneOffset;
 	
-	public ServerConfigDTO(int dataFilter, int defaultTimeWindow) {
+	public ServerConfigDTO(int dataFilter, int defaultTimeWindow, int defaultTimeZoneOffset) {
 		super();
 		this.dataFilter = dataFilter;
 		this.defaultTimeWindow = defaultTimeWindow;
+		this.defaultTimeZoneOffset = defaultTimeZoneOffset;
 	}
 	
 	public ServerConfigDTO() {
@@ -32,12 +34,21 @@ public class ServerConfigDTO {
 		this.defaultTimeWindow = defaultTimeWindow;
 	}
 
+	public int getDefaultTimeZoneOffset() {
+		return defaultTimeZoneOffset;
+	}
+
+	public void setDefaultTimeZoneOffset(int defaultTimeZoneOffset) {
+		this.defaultTimeZoneOffset = defaultTimeZoneOffset;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Config object : ");
 		sb.append("dataFilter : " + this.dataFilter);
 		sb.append("; defaultTimeWindow : " + this.defaultTimeWindow);
+		sb.append("; defaultTimeZoneOffset : " + this.defaultTimeZoneOffset);
 		return sb.toString();
 	}
 }
