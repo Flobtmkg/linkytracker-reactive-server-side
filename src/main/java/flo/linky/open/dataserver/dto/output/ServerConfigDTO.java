@@ -5,9 +5,11 @@ public class ServerConfigDTO {
 	private int dataFilter;
 	private int defaultTimeWindow;
 	private int defaultTimeZoneOffset;
+	private String backendVersion;
 	
-	public ServerConfigDTO(int dataFilter, int defaultTimeWindow, int defaultTimeZoneOffset) {
+	public ServerConfigDTO(String backendVersion, int dataFilter, int defaultTimeWindow, int defaultTimeZoneOffset) {
 		super();
+		this.backendVersion = backendVersion;
 		this.dataFilter = dataFilter;
 		this.defaultTimeWindow = defaultTimeWindow;
 		this.defaultTimeZoneOffset = defaultTimeZoneOffset;
@@ -42,11 +44,20 @@ public class ServerConfigDTO {
 		this.defaultTimeZoneOffset = defaultTimeZoneOffset;
 	}
 	
+	public String getBackendVersion() {
+		return backendVersion;
+	}
+
+	public void setBackendVersion(String backendVersion) {
+		this.backendVersion = backendVersion;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Config object : ");
-		sb.append("dataFilter : " + this.dataFilter);
+		sb.append("backendVersion : " + this.backendVersion);
+		sb.append("; dataFilter : " + this.dataFilter);
 		sb.append("; defaultTimeWindow : " + this.defaultTimeWindow);
 		sb.append("; defaultTimeZoneOffset : " + this.defaultTimeZoneOffset);
 		return sb.toString();

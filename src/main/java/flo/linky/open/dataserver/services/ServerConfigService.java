@@ -42,6 +42,7 @@ public class ServerConfigService {
 		return serverConfigRepository.findFirstByOrderByIdDesc()
 					.map(config -> 
 						new ServerConfigDTO(
+								currentConfiguration.getBackendVersion(),
 								config.getDataFilterMilis(),
 								config.getDefaultTimeWindow(),
 								config.getDefaultTimeZoneOffset()

@@ -47,15 +47,14 @@ public class ElectricityDataPointsController {
 	private CurrentConfiguration currentConfiguration;
 	
 	
-	
+	// We keep the last received data point in cache so we can filter false positives with a time threshold
 	private LocalDateTime cachedLastPostReceived = LocalDateTime.now();
 	
 	
 	@GetMapping("/api/v1/device/recent/activity")
-	public Mono<Boolean> getRecentActivity(@RequestParam("deviceId") String deviceId) {
+	public Mono<String> getRecentActivity(@RequestParam("deviceId") String deviceId) {
 		if(null != deviceId && !"".equals(deviceId)) {
-			return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findBydeviceIdAndDate(deviceId, LocalDate.now()))
-					.hasElements();
+			return deviceService.findLastData(deviceId);
 		}
 		return Mono.empty();
 	}

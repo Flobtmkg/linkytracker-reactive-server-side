@@ -20,6 +20,9 @@ public class CurrentConfiguration {
 	
 	private static Logger log = LoggerFactory.getLogger(CurrentConfiguration.class);
 
+	@Value("${linkydataserver.version:}")
+	private String backendVersion;
+	
 	@Value("${spring.profiles.active}")
 	private String springProfil;
 	@Value("${spring.r2dbc.url}")
@@ -111,6 +114,10 @@ public class CurrentConfiguration {
 
 	public String getSecretR2dbcUsername() {
 		return secretR2dbcUsername;
+	}
+
+	public String getBackendVersion() {
+		return backendVersion;
 	}
 
 }
