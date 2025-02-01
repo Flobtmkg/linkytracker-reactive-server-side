@@ -3,6 +3,7 @@ package flo.linky.open.dataserver.repositories;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.springframework.data.domain.Limit;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.r2dbc.repository.R2dbcRepository;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +20,8 @@ public interface ElectricityConsumptionRepository extends R2dbcRepository<Electr
 	
 	public Flux<ElectricityConsumptionDataPointEntity> findByDeviceIdAndPointDateBetweenOrderByPointDateAsc(String deviceId, LocalDate from, LocalDate to);
 
+	public Flux<ElectricityConsumptionDataPointEntity> findByDeviceIdAndPointDateBetweenOrderByPointDateDesc(String deviceId, LocalDate from, LocalDate to, Limit limit);
+	
 	@Query("SELECT POINT_DATE FROM ELECTRICITY_CONSUMPTION_DATA_POINT_ENTITY WHERE DEVICE_ID=:device ORDER BY POINT_DATE DESC LIMIT 1")
 	public Flux<LocalDateTime> findLastDataByDeviceId(@Param("device")String deviceId);
 	

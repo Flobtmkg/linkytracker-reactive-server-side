@@ -11,6 +11,7 @@ import flo.linky.open.dataserver.dto.inputs.SensorLedBlinkedDTO;
 import flo.linky.open.dataserver.dto.output.DataGraphDTO;
 import flo.linky.open.dataserver.entities.ElectricityConsumptionDataPointEntity;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class ConsumptionConverter {
@@ -42,5 +43,17 @@ public class ConsumptionConverter {
 		);
 	}
 	
+	
+	public Mono<DataGraphDTO> convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(Mono<ElectricityConsumptionDataPointEntity> datas) {
+		return datas.map(data -> 
+			new DataGraphDTO(
+					data.getPointDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+				new BigDecimal(
+					data.getLedMilis() !=0 ? (1/((float)data.getLedMilis())*CONVERT_WH_ms_TO_INSTANT_AVERAGE_WATT) : 0,
+					new MathContext(4, RoundingMode.HALF_EVEN)
+				)
+			)
+		);
+	}
 	
 }

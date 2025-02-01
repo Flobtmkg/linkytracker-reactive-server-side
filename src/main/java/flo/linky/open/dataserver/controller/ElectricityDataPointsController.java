@@ -3,6 +3,7 @@ package flo.linky.open.dataserver.controller;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class ElectricityDataPointsController {
 	
 	
 	// We keep the last received data point in cache so we can filter false positives with a time threshold
+	// TODO: Should work per device not as a global parameter!
 	private LocalDateTime cachedLastPostReceived = LocalDateTime.now();
 	
 	
@@ -101,5 +103,31 @@ public class ElectricityDataPointsController {
 				.delayElements(Duration.ofMillis(30))
 				.delaySubscription(Duration.ofMillis(1000));
 	}
-
+	
+	
+	// Simple list of data per day in one JSON
+	@GetMapping(value="/api/v2/datapoints/date", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Mono<List<DataGraphDTO>> getElectricityConsumptionDataPointsByDate(
+			@RequestParam("deviceId") String deviceId,
+			@RequestParam("date") LocalDate date,
+			ServerHttpResponse response) {
+		
+		logger.info("Lookup for device : " + deviceId + " date : " + date.toString());
+		return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findBydeviceIdAndDate(deviceId, date))
+				.collectList();
+	}
+	
+	// Communication of the last DataGraphDTO via SSE for last datas
+	@GetMapping(value="/api/v2/datapoints/last/date", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Flux<DataGraphDTO> getLastElectricityConsumptionDataPoint(
+			@RequestParam("deviceId") String deviceId,
+			@RequestParam("date") LocalDate date,
+			ServerHttpResponse response) {
+		
+		logger.info("Lookup for device : " + deviceId + " date : " + date.toString());
+		return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findLastBydeviceIdAndDate(deviceId, date))
+				.repeat()
+				.delayElements(Duration.ofMillis(30))
+				.delaySubscription(Duration.ofMillis(1000));
+	}
 }

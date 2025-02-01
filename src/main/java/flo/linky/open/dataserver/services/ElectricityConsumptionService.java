@@ -3,6 +3,7 @@ package flo.linky.open.dataserver.services;
 import java.time.LocalDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Limit;
 import org.springframework.stereotype.Service;
 
 import flo.linky.open.dataserver.entities.ElectricityConsumptionDataPointEntity;
@@ -47,6 +48,10 @@ public class ElectricityConsumptionService {
 	
 	public Flux<ElectricityConsumptionDataPointEntity> findBydeviceIdAndDate(String deviceId, LocalDate date) {
 		return electricityConsumptionRepository.findByDeviceIdAndPointDateBetweenOrderByPointDateAsc(deviceId, date, date.plusDays(1));
+	}
+	
+	public Mono<ElectricityConsumptionDataPointEntity> findLastBydeviceIdAndDate(String deviceId, LocalDate date) {
+		return electricityConsumptionRepository.findByDeviceIdAndPointDateBetweenOrderByPointDateDesc(deviceId, date, date.plusDays(1), Limit.of(1)).single();
 	}
 	
 	
