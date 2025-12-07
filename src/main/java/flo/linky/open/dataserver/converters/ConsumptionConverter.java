@@ -3,7 +3,7 @@ package flo.linky.open.dataserver.converters;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 import org.springframework.stereotype.Service;
 
@@ -34,9 +34,9 @@ public class ConsumptionConverter {
 	public Flux<DataGraphDTO> convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(Flux<ElectricityConsumptionDataPointEntity> datas) {
 		return datas.map(data -> 
 			new DataGraphDTO(
-					data.getPointDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+					data.getPointDate().atZone(ZoneOffset.UTC).toInstant().toEpochMilli(),
 				new BigDecimal(
-					data.getLedMilis() !=0 ? (1/((float)data.getLedMilis())*CONVERT_WH_ms_TO_INSTANT_AVERAGE_WATT) : 0,
+					data.getLedMilis() != 0 ? (1/((float)data.getLedMilis())*CONVERT_WH_ms_TO_INSTANT_AVERAGE_WATT) : 0,
 					new MathContext(4, RoundingMode.HALF_EVEN)
 				)
 			)
@@ -47,7 +47,7 @@ public class ConsumptionConverter {
 	public Mono<DataGraphDTO> convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(Mono<ElectricityConsumptionDataPointEntity> datas) {
 		return datas.map(data -> 
 			new DataGraphDTO(
-					data.getPointDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+					data.getPointDate().atZone(ZoneOffset.UTC).toInstant().toEpochMilli(),
 				new BigDecimal(
 					data.getLedMilis() !=0 ? (1/((float)data.getLedMilis())*CONVERT_WH_ms_TO_INSTANT_AVERAGE_WATT) : 0,
 					new MathContext(4, RoundingMode.HALF_EVEN)

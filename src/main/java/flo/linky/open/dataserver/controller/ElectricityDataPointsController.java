@@ -3,6 +3,8 @@ package flo.linky.open.dataserver.controller;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ import flo.linky.open.dataserver.dto.output.DataGraphDTO;
 import flo.linky.open.dataserver.dto.output.DeviceDTO;
 import flo.linky.open.dataserver.services.DeviceService;
 import flo.linky.open.dataserver.services.ElectricityConsumptionService;
+import flo.linky.open.dataserver.utils.TimeZoneConverter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -46,6 +48,9 @@ public class ElectricityDataPointsController {
 	
 	@Autowired
 	private CurrentConfiguration currentConfiguration;
+	
+	@Autowired
+	private TimeZoneConverter timeZoneConverter;
 	
 	
 	// We keep the last received data point in cache so we can filter false positives with a time threshold
@@ -74,12 +79,13 @@ public class ElectricityDataPointsController {
 	@PostMapping("/api/v1/datapoints")
 	public ResponseEntity<Void> postElectricityConsumptionDataPoints(@RequestBody SensorLedBlinkedDTO consumptionDTO) {
 		
-		LocalDateTime inputTime = LocalDateTime.now();
+		// time is saved as UTC
+		LocalDateTime inputTime = LocalDateTime.now(ZoneOffset.UTC);
 		
 		// If we are above the threshold tolerance we push the data otherwise we ignore it
 		if(Duration.between(cachedLastPostReceived, inputTime).compareTo(Duration.ofMillis(currentConfiguration.getServerConfig().getDataFilter())) > 0) {
 			cachedLastPostReceived = inputTime;
-			// Add time from server
+			// Add UTC time
 			consumptionDTO.setPointDate(inputTime);
 			
 			logger.info("Input detected from deviceId " + consumptionDTO.getDeviceId() + " value : " + consumptionDTO.getLedMilis());
@@ -95,10 +101,13 @@ public class ElectricityDataPointsController {
 	public Flux<DataGraphDTO> getLastElectricityConsumptionDataPoints(
 			@RequestParam("deviceId") String deviceId,
 			@RequestParam("date") LocalDate date,
-			ServerHttpResponse response) {
+			@RequestParam("zone") String zone) {
+		
+		
+		LocalDateTime correctedDate = timeZoneConverter.convertClientDateToUTC(date, zone);
 		
 		logger.info("Lookup for device : " + deviceId + " date : " + date.toString());
-		return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findBydeviceIdAndDate(deviceId, date))
+		return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findBydeviceIdAndDate(deviceId, correctedDate))
 				.repeat()
 				.delayElements(Duration.ofMillis(30))
 				.delaySubscription(Duration.ofMillis(1000));
@@ -110,10 +119,12 @@ public class ElectricityDataPointsController {
 	public Mono<List<DataGraphDTO>> getElectricityConsumptionDataPointsByDate(
 			@RequestParam("deviceId") String deviceId,
 			@RequestParam("date") LocalDate date,
-			ServerHttpResponse response) {
+			@RequestParam("zone") String zone) {
+		
+		LocalDateTime correctedDate = timeZoneConverter.convertClientDateToUTC(date, zone);
 		
 		logger.info("Lookup for device : " + deviceId + " date : " + date.toString());
-		return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findBydeviceIdAndDate(deviceId, date))
+		return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findBydeviceIdAndDate(deviceId, correctedDate))
 				.collectList();
 	}
 	
@@ -122,12 +133,14 @@ public class ElectricityDataPointsController {
 	public Flux<DataGraphDTO> getLastElectricityConsumptionDataPoint(
 			@RequestParam("deviceId") String deviceId,
 			@RequestParam("date") LocalDate date,
-			ServerHttpResponse response) {
+			@RequestParam("zone") String zone) {
+		
+		LocalDateTime correctedDate = timeZoneConverter.convertClientDateToUTC(date, zone);
 		
 		logger.info("Lookup for device : " + deviceId + " date : " + date.toString());
-		return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findLastBydeviceIdAndDate(deviceId, date))
+		return consumptionConverterService.convertElectricityConsumptionDataPointEntitiesToDataGraphDTO(ElectricityConsumptionService.findLastBydeviceIdAndDate(deviceId, correctedDate))
 				.repeat()
-				.delayElements(Duration.ofMillis(30))
+				.delayElements(Duration.ofMillis(250))
 				.delaySubscription(Duration.ofMillis(1000));
 	}
 }

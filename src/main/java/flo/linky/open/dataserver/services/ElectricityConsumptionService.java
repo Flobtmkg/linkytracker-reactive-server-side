@@ -1,6 +1,6 @@
 package flo.linky.open.dataserver.services;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Limit;
@@ -46,12 +46,12 @@ public class ElectricityConsumptionService {
 		return electricityConsumptionRepository.findByDeviceIdOrderByPointDateAsc(deviceId);
 	}
 	
-	public Flux<ElectricityConsumptionDataPointEntity> findBydeviceIdAndDate(String deviceId, LocalDate date) {
+	public Flux<ElectricityConsumptionDataPointEntity> findBydeviceIdAndDate(String deviceId, LocalDateTime date) {
 		return electricityConsumptionRepository.findByDeviceIdAndPointDateBetweenOrderByPointDateAsc(deviceId, date, date.plusDays(1));
 	}
 	
-	public Mono<ElectricityConsumptionDataPointEntity> findLastBydeviceIdAndDate(String deviceId, LocalDate date) {
-		return electricityConsumptionRepository.findByDeviceIdAndPointDateBetweenOrderByPointDateDesc(deviceId, date, date.plusDays(1), Limit.of(1)).single();
+	public Flux<ElectricityConsumptionDataPointEntity> findLastBydeviceIdAndDate(String deviceId, LocalDateTime date) {
+		return electricityConsumptionRepository.findByDeviceIdAndPointDateBetweenOrderByPointDateDesc(deviceId, date, date.plusDays(1), Limit.of(3));
 	}
 	
 	
